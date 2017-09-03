@@ -15,8 +15,8 @@
 %
 % This parser supports well formed csv files which are
 % - a set of lines ending with a \n
-% - each line contains a set of fields separated with a comma (,)
-% - each field value can be enclosed with single quotes (') ONLY
+% - Comma is the default field delimiter; change using ecsv_opts
+% - Strings may be enclosed with double quotes ("); change using ecsv_opts
 % - each field value can be empty
 %
 % Please note:
