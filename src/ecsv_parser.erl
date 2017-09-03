@@ -16,7 +16,7 @@
 % This parser supports well formed csv files which are
 % - a set of lines ending with a \n
 % - each line contains a set of fields separated with a comma (,)
-% - each field value can be enclosed with double quote (") ONLY
+% - each field value can be enclosed with single quotes (') ONLY
 % - each field value can be empty
 %
 % Please note:
@@ -109,7 +109,7 @@ do_ready(
                 current_value=[],
                 process_fun_state=UpdatedProcessingFunState1
             };
-        {char, Char} when (Char == $') ->
+        {char, Char} when Char == $\t ->
             % pass an empty string to in_quotes as we do not want the
             % preceeding characters to be included, only those in quotes
             PState#pstate{state=in_quotes, current_value=[]};
@@ -157,7 +157,7 @@ do_in_quotes(
                 current_value=[],
                 process_fun_state=UpdatedProcessingFunState1
             };
-        {char, Char} when Char == $' ->
+        {char, Char} when Char == $\t ->
             PState#pstate{
                 state=skip_to_delimiter,
                 current_line=[lists:reverse(CurrentValue) | CurrentLine],
