@@ -25,7 +25,7 @@
 % - This parser doesn't allow a return (\n) in a field value!
 %
 
--export([init/1, init/2, parse_with_character/2, end_parsing/1]).
+-export([init/1, init/2, init/3, parse_with_character/2, end_parsing/1]).
 
 -record(pstate, {
     state, % ready, in_quotes, skip_to_delimiter, eof
@@ -36,7 +36,6 @@
     process_fun_state
 }).
 
--define(QUOTE, $\').
 
 % 4 states:
 %   ready
@@ -95,6 +94,7 @@ do_ready(
     }=PState
     ) ->
     Delimiter = Opts#ecsv_opts.delimiter,
+    Quote = Opts#ecsv_opts.quote,
     case Input of
         {eof} ->
             NewLine = case CurrentValue of
@@ -111,7 +111,7 @@ do_ready(
                 current_value=[],
                 process_fun_state=UpdatedProcessingFunState1
             };
-        {char, Char} when Char == ?QUOTE ->
+        {char, Char} when Char == Quote ->
             % pass an empty string to in_quotes as we do not want the
             % preceeding characters to be included, only those in quotes
             PState#pstate{state=in_quotes, current_value=[]};
@@ -140,6 +140,7 @@ do_ready(
 do_in_quotes(
     Input,
     #pstate{
+        opts=Opts,
         current_line=CurrentLine,
         current_value=CurrentValue,
         process_fun=ProcessingFun,
@@ -159,7 +160,7 @@ do_in_quotes(
                 current_value=[],
                 process_fun_state=UpdatedProcessingFunState1
             };
-        {char, Char} when Char == ?QUOTE ->
+        {char, Char} when Char == Opts#ecsv_opts.quote ->
             PState#pstate{
                 state=skip_to_delimiter,
                 current_line=[lists:reverse(CurrentValue) | CurrentLine],
