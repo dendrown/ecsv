@@ -161,11 +161,18 @@ do_in_quotes(
                 process_fun_state=UpdatedProcessingFunState1
             };
         {char, Char} when Char == Opts#ecsv_opts.quote ->
-            PState#pstate{
-                state=skip_to_delimiter,
-                current_line=[lists:reverse(CurrentValue) | CurrentLine],
-                current_value=[]
-            };
+            %% Handle the case when there is an escaped double quote
+            %% in the field
+            case CurrentValue of
+                [$\\ | V] ->
+                    PState#pstate{current_value=[Char | V]};
+                _ ->
+                    PState#pstate{
+                        state=skip_to_delimiter,
+                        current_line=[lists:reverse(CurrentValue) | CurrentLine],
+                        current_value=[]
+                    }
+            end;
         {char, Char} ->
             PState#pstate{current_value=[Char | CurrentValue]}
     end.
